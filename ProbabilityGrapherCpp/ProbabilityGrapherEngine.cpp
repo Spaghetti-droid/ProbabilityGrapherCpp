@@ -3,7 +3,7 @@
 #include <vector>
 #include <string>
 #include <cstring>
-#include "ProbabilityGrapher.h"
+#include "ProbabilityGrapherEngine.h"
 
 int main(int argc, char* argv[])
 {

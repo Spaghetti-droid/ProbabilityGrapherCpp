@@ -1,5 +1,8 @@
 #pragma once
 
+#include <map>
+#include <string>
+
 // Print usage information
 void printUsage();
 // Check to see if array contains opt
