@@ -1,5 +1,6 @@
 #include <iostream>
 #include <map>
+#include <vector>
 #include <string>
 #include <cstring>
 #include "ProbabilityGrapher.h"
@@ -24,17 +25,61 @@ int main(int argc, char* argv[])
         return 1;
     }
 
+    std::cerr << "Received:\n";
     for (auto const& [key, val] : diceMap) {
-        std::cout << key << ':' << val << '\n';
+        std::cerr << key << ':' << val << '\n';
     }
 
     // Generate dice ranges
 
+    std::vector<std::vector<int>> ranges{};
+    for (auto const& [maxValue, nDice] : diceMap) {
+        for(int i=0; i<nDice; i++){
+            std::vector<int> range{};
+            range.reserve(maxValue);
+            for(int val=1; val<=maxValue; val++){
+                range.push_back(val);
+            }
+            ranges.push_back(range);
+        }
+    }
+
     // Add them together
+
+    std::vector<int>& current = ranges[0];
+    std::vector<long> previousSums{};  
+    std::vector<long> currentSums(std::begin(current), std::end(current));
+    for(int i=1; i<ranges.size(); i++){
+        current = ranges[i];
+        previousSums.swap(currentSums);
+        currentSums.clear();
+        for(int rangeVal : current){
+            for(long sumVal : previousSums){
+                currentSums.push_back(rangeVal + sumVal);
+            }
+        }
+    }
 
     // Count occurences in final array
 
+    std::map<long, long> sumToOccurences{};
+    for(long s : currentSums){
+        auto elem = sumToOccurences.find(s);
+        if(elem == sumToOccurences.end()){
+            sumToOccurences.emplace(s, 1);
+            std::cerr << "Added " << s << '\n';
+        } else {
+            std::cerr << "Second: " << elem->second << '\n';
+            sumToOccurences[s] = elem->second + 1;
+            std::cerr << "Incremented " << s << '\n';
+        }
+    }
+
     // Output value/count pairs
+
+    for (auto const& [sum, occurences] : sumToOccurences) {
+        std::cout << sum << ':' << occurences << '\n';
+    }
 
 }
 
@@ -65,12 +110,17 @@ void fillDiceMap(int argc, char* argv[], std::map<int, int>& diceMap) {
             try {
                 const int numDice{ std::stoi(numDiceC) };
                 const int maxValue{ std::stoi(maxValueC) };
-                auto elem = diceMap.find(maxValue);
-                if (elem == diceMap.end()) {
-                    diceMap.emplace(maxValue, numDice);
-                }
-                else {
-                    diceMap.emplace(maxValue, numDice + elem->second);
+                error = numDice <= 0 || maxValue <= 0;
+                if(!error){ 
+                    auto elem = diceMap.find(maxValue);
+                    if (elem == diceMap.end()) {
+                        diceMap.emplace(maxValue, numDice);
+                    }
+                    else {
+                        diceMap.emplace(maxValue, numDice + elem->second);
+                    }
+                } else {
+                    std::cerr << "Negative or 0 value detected\n";
                 }
             }
             catch (std::invalid_argument const& ex) {
