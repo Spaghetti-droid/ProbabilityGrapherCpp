@@ -25,10 +25,12 @@ int main(int argc, char* argv[])
         return 1;
     }
 
+    #ifdef DEBUG
     std::cerr << "Received:\n";
     for (auto const& [key, val] : diceMap) {
         std::cerr << key << ':' << val << '\n';
     }
+    #endif
 
     // Generate dice ranges
 
@@ -67,11 +69,8 @@ int main(int argc, char* argv[])
         auto elem = sumToOccurences.find(s);
         if(elem == sumToOccurences.end()){
             sumToOccurences.emplace(s, 1);
-            std::cerr << "Added " << s << '\n';
         } else {
-            std::cerr << "Second: " << elem->second << '\n';
             sumToOccurences[s] = elem->second + 1;
-            std::cerr << "Incremented " << s << '\n';
         }
     }
 
